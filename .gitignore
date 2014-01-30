@@ -1,0 +1,5 @@
+/node_modules/
+npm-debug.log
+.theorem
+.theorem-db.json
+test-db.json

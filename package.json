@@ -1,0 +1,39 @@
+{
+  "name": "theorem",
+  "version": "0.0.0",
+  "description": "A tool for managing registered node apps through supervisor, monit and paypal",
+  "private": true,
+  "bin": {
+    "theorem": "./bin/theorem"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "author": {
+    "name": "Riku Avelar",
+    "email": "riku.avelar@gmail.com",
+    "url": "https://github.com/RikuAvelar"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RikuAvelar/theorem"
+  },
+  "license": "MIT",
+  "bugs": "https://github.com/RikuAvelar/theorem/issues",
+  "dependencies": {
+    "commander": "~2.0.0",
+    "autocmdr": "~0.0.4",
+    "lodash": "~2.4.1",
+    "underscore.string": "~2.3.3",
+    "json-store": "0.0.1",
+    "q": "~1.0.0",
+    "promptly": "~0.2.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-mocha-test": "~0.8.2",
+    "grunt-contrib-jshint": "~0.8.0",
+    "chai": "~1.9.0"
+  }
+}
