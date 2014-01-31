@@ -4,8 +4,8 @@ var dbInstance;
 function db(jsonFile){
 	var _ = require('lodash');
 	var path = require('path');
-	var dbPath = jsonFile || path.join(__dirname, '../.theorem-db.json');
 	var jsonStore = require('json-store');
+	var dbPath = path.resolve(path.join(__dirname, '..'), jsonFile || '.theorem.db.json');
 
 	var storage = jsonStore(dbPath);
 

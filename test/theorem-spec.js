@@ -12,7 +12,13 @@ describe('theorem bin', function(){
 
     before(function(){
         if(fs.existsSync(dbPath)){
-            fs.unlink(dbPath);
+            fs.unlinkSync(dbPath);
+        }
+    });
+
+    after(function(){
+        if(fs.existsSync(dbPath)){
+            fs.unlinkSync(dbPath);
         }
     });
 
@@ -29,14 +35,6 @@ describe('theorem bin', function(){
             done();
         });
     });
-
-	it('--db-path should create a new db at specified path (thus using it)', function(done) {
-		exec(cmd+'--db-path', function (error, stdout, stderr) {
-			assert(!error);
-            assertTrue(fs.existsSync(dbPath));
-			done();
-		});
-	});
 
 	it('should return error on missing command', function(done) {
         this.timeout(4000);

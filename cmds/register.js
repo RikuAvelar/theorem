@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var _s = require('underscore.string');
-var db = require('../helpers/storage.js')();
 var Q = require('q');
 var promptly = require('promptly');
 
@@ -38,6 +37,7 @@ function stepByStepPrompt(program){
         .then(prompt('command', 'Command [default=node]: ', 'node'))
         .then(prompt('log', 'Log Path [default=/var/log]: ', '/var/log'))
         .done(function(){
+            var db = program.getDB();
             store.command = store.command + ' ' + store.script;
             db.push('apps', store);
             deferred.resolve();
@@ -52,10 +52,11 @@ module.exports = function(program){
         .command('register [FullPath]')
         .description('Register a new Node.js app')
         .option('-n, --name [Name]', 'Script Name, doubles as Process Name when command is set through FullPath or "-c" flag')
-        .option('-c, --command [Command]', 'Use a custom startup command. Defaults to "node <script>"')
+        .option('-c, --commandName [Command]', 'Use a custom startup commandName. Defaults to "node <script>"')
         .option('-d, --directory <Path>', 'Absolute path to Directory in which to run')
         .option('-l, --log <Path>', 'Specify where to save logs. Defaults to "/var/log"')
         .action(function(path, cmd){
+            var db = program.getDB();
             //If any of these exist (through identity)
             if(!_.any([path, cmd.path, cmd.name])) {
                 stepByStepPrompt(program);
@@ -80,8 +81,8 @@ module.exports = function(program){
                         //Sanity check on cmd.name : Can it be interpreted as the script's name?
                         if (_s(cmd.name).endsWith('.js')) {
                             pathSplit.push(cmd.name);
-                        } else if (cmd.command) {
-                            pathSplit.push(_.last(cmd.command.split(' ')));
+                        } else if (cmd.commandName) {
+                            pathSplit.push(_.last(cmd.commandName.split(' ')));
                         } else {
                             program.error('Script name could not be inferred from given information. (Try setting Name as the Script Name, or setting a Command)');
                             return false;
@@ -92,11 +93,11 @@ module.exports = function(program){
                     name: cmd.name,
                     directory: cmd.directory,
                     log: cmd.log,
-                    command: cmd.command
+                    command: cmd.commandName
                 }, {
                     name: _.last(pathSplit),
                     directory: '/' + _.initial(pathSplit).join('/'),
-                    log: '/var/log/theorem',
+                    log: '/var/log',
                     command: 'node ' + _.last(pathSplit)
                 });
 

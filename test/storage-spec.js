@@ -9,7 +9,7 @@ describe('Storage Module', function(){
 
 	before(function(){
 		if(fs.exists(dbPath)){
-			fs.unlink(dbPath);
+			fs.unlinkSync(dbPath);
 		}
 	});
 
@@ -40,5 +40,11 @@ describe('Storage Module', function(){
 		storage.set('apps', 3);
 		storage.push('apps', 2);
 		expect(storage.get('apps')).to.be.an('array').and.to.have.length(2).and.to.include.members([3,2]);
+	});
+
+	after(function(){
+		if(fs.exists(dbPath)){
+			fs.unlinkSync(dbPath);
+		}
 	});
 });
