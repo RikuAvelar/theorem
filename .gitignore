@@ -2,4 +2,5 @@
 npm-debug.log
 .theorem
 .theorem-db.json
+.theorem.db.json
 test-db.json
