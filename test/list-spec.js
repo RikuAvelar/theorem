@@ -5,7 +5,7 @@ var exec = require('child_process').exec;
 var path = require('path');
 var db = require('../helpers/storage.js')('./test-db.json');
 
-describe('theorem register', function(){
+describe('theorem list', function(){
 	var dbPath = path.join(__dirname, '../test-db.json');
 	var cmd = ['node', path.join(__dirname, '../bin/theorem'), '--dbpath', dbPath, 'list'];
 

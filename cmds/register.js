@@ -86,8 +86,6 @@ module.exports = function(program){
                         //Sanity check on cmd.script : Can it be interpreted as the script's script?
                         if (_s(cmd.script).endsWith('.js')) {
                             pathSplit.push(cmd.script);
-                        } else if (cmd.commandName) {
-                            pathSplit.push(_.last(cmd.commandName.split(' ')));
                         } else {
                             program.error('Script name could not be inferred from given information. (Try setting Name as the Script Name, or setting a Command)');
                             return false;
@@ -101,7 +99,7 @@ module.exports = function(program){
                     log: cmd.log,
                     command: cmd.commandName
                 }, {
-                    name: _.last(pathSplit),
+                    name: path.basename(pathSplit, '.js'),
                     script: _.last(pathSplit),
                     directory: '/' + _.initial(pathSplit).join('/'),
                     log: '/var/log',
