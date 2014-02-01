@@ -14,7 +14,7 @@ module.exports = function(program) {
 		.description('List currently registered apps')
 		.action(function(/* Args here */){
 			// Your code goes here
-            var apps = program.getDB().get('apps');
+            var apps = _.indexBy(program.getDB().get('apps'), 'name');
             if(_.isEmpty(apps)){
                 program.log.info('There are currently no registered apps');
             } else {

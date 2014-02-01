@@ -3,6 +3,8 @@ var _ = require('lodash');
 var _s = require('underscore.string');
 var Q = require('q');
 var promptly = require('promptly');
+var injector = require('../helpers/injector.js');
+var fs = require('fs');
 
 function prompter(program, store, key, prompt, defaultVal){
     return function(){
@@ -38,7 +40,7 @@ function stepByStepPrompt(program){
         .then(prompt('log', 'Log Path [default=/var/log]: ', '/var/log'))
         .done(function(){
             var db = program.getDB();
-            store.command = store.command + ' ' + store.script;
+            // store.command = store.command + ' ' + store.script;
             db.push('apps', store);
             deferred.resolve();
         });
@@ -51,36 +53,38 @@ module.exports = function(program){
     program
         .command('register [FullPath]')
         .description('Register a new Node.js app')
-        .option('-n, --name [Name]', 'Script Name, doubles as Process Name when command is set through FullPath or "-c" flag')
+        .option('-n, --name [Name]', 'Application name')
+        .option('-s, --script [script]', 'Script name. Defaults to "app.js"')
         .option('-c, --commandName [Command]', 'Use a custom startup commandName. Defaults to "node <script>"')
         .option('-d, --directory <Path>', 'Absolute path to Directory in which to run')
         .option('-l, --log <Path>', 'Specify where to save logs. Defaults to "/var/log"')
+        .option('-N, --noappend', 'Do not inject PID script to the app')
         .action(function(path, cmd){
             var db = program.getDB();
             //If any of these exist (through identity)
-            if(!_.any([path, cmd.path, cmd.name])) {
+            if(!_.any([path, cmd.path, cmd.script])) {
                 stepByStepPrompt(program);
             } else {
                 var nopath = false;
                 if (!path) {
                     // First with an identity wins
-                    path = _.find([cmd.path, cmd.name]);
+                    path = _.find([cmd.path, cmd.script]);
                     nopath = true;
                 }
                 //Compact to get rid of initial empty string and possible trailing slash
                 var pathSplit = _.compact(path.split('/'));
                 //Case : No FullPath was provided, and not enough info could be gathere from
                 if (pathSplit.length === 1 && nopath) {
-                    if (cmd.path && !cmd.name) {
+                    if (cmd.path && !cmd.script) {
                         program.error('Directory Path must be absolute (and non-root)');
                         return false;
-                    } else if(cmd.name) {
+                    } else if(cmd.script) {
                         program.error('A valid path must be provided, either through the "-d" flag or directly');
                         return false;
                     } else {
-                        //Sanity check on cmd.name : Can it be interpreted as the script's name?
-                        if (_s(cmd.name).endsWith('.js')) {
-                            pathSplit.push(cmd.name);
+                        //Sanity check on cmd.script : Can it be interpreted as the script's script?
+                        if (_s(cmd.script).endsWith('.js')) {
+                            pathSplit.push(cmd.script);
                         } else if (cmd.commandName) {
                             pathSplit.push(_.last(cmd.commandName.split(' ')));
                         } else {
@@ -91,17 +95,33 @@ module.exports = function(program){
                 }
                 var options = _.defaults({
                     name: cmd.name,
+                    script: cmd.script,
                     directory: cmd.directory,
                     log: cmd.log,
                     command: cmd.commandName
                 }, {
                     name: _.last(pathSplit),
+                    script: _.last(pathSplit),
                     directory: '/' + _.initial(pathSplit).join('/'),
                     log: '/var/log',
-                    command: 'node ' + _.last(pathSplit)
+                    command: 'node'
                 });
 
-                db.push('apps',options);
+                var scriptFile = path.join(options.directory, options.script);
+
+                if(!cmd.noappend && fs.existsSync(scriptFile)){
+                    injector.injectPid(options.name, scriptFile).done(function(){
+                        db.push('apps',options);
+                        program.log.info('App successfully registered');
+                    }).fail(function(err){
+                        program.error(err.message);
+                    });
+                } else if(cmd.noappend) {
+                    db.push('apps',options);
+                    program.log.info('App successfully registered');
+                } else {
+                    program.error('The script you attempted to register did not exist (' + scriptFile + ')');
+                }
             }
         });
 };

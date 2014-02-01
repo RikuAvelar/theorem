@@ -9,6 +9,11 @@ program.getDB = function(){
     return storage(program.dbpath);
 }
 
+program.error = function(){
+    program.log.error.apply(null, arguments);
+    process.exit(1);
+};
+
 require('autocmdr/lib/logger')(program);
 require('autocmdr/lib/loader')(program);
 require('autocmdr/lib/completion')(program);
@@ -18,11 +23,6 @@ require('autocmdr/lib/help')(program);
 
 program.option('-D, --dbpath [dbPath]', 'Path to the JSON Storage')
 program.parse(process.argv);
-
-program.error = function(){
-    program.log.error.apply(null, arguments);
-    process.exit(1);
-};
 
 if (program.args.length < 1 ) {
 	console.log('No command specified. See \'theorem --help\':');
