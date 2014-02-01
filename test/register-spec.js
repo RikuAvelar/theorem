@@ -8,7 +8,7 @@ var suppose = require('suppose');
 
 describe('theorem register', function(){
 	var dbPath = path.join(__dirname, '../test-db.json');
-	var cmd = [path.join(__dirname, '../bin/theorem'), '--dbpath', dbPath, 'register'];
+	var cmd = [path.join(__dirname, '../bin/theorem'), '--noinject', '--dbpath', dbPath, 'register'];
 
 	beforeEach(function(){
 		if(fs.existsSync(dbPath)){
@@ -36,7 +36,7 @@ describe('theorem register', function(){
 					expect(dbObj.apps[0].name).to.be.equal('AppName');
 					expect(dbObj.apps[0].directory).to.be.equal('/home/dev');
 					expect(dbObj.apps[0].script).to.be.equal('app.js');
-					expect(dbObj.apps[0].command).to.be.equal('node app.js');
+					expect(dbObj.apps[0].command).to.be.equal('node');
 					expect(dbObj.apps[0].log).to.be.equal('/var/log');
 					done();
 				});
@@ -57,7 +57,7 @@ describe('theorem register', function(){
 					expect(dbObj.apps[0]).to.contain.keys('name', 'directory', 'command', 'log');
 					expect(dbObj.apps[0].name).to.be.equal('app.js');
 					expect(dbObj.apps[0].directory).to.be.equal('/home/dev');
-					expect(dbObj.apps[0].command).to.be.equal('node app.js');
+					expect(dbObj.apps[0].command).to.be.equal('node');
 					expect(dbObj.apps[0].log).to.be.equal('/var/log');
 					done();
 				});
@@ -78,7 +78,7 @@ describe('theorem register', function(){
 					expect(dbObj.apps[0]).to.contain.keys('name', 'directory', 'command', 'log');
 					expect(dbObj.apps[0].name).to.be.equal('AppName');
 					expect(dbObj.apps[0].directory).to.be.equal('/home/dev');
-					expect(dbObj.apps[0].command).to.be.equal('node app.js');
+					expect(dbObj.apps[0].command).to.be.equal('node');
 					expect(dbObj.apps[0].log).to.be.equal('/var/log/theorem');
 					done();
 				});

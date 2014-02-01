@@ -5,6 +5,7 @@ var Q = require('q');
 var promptly = require('promptly');
 var injector = require('../helpers/injector.js');
 var fs = require('fs');
+var _path = require('path');
 
 function prompter(program, store, key, prompt, defaultVal){
     return function(){
@@ -58,7 +59,7 @@ module.exports = function(program){
         .option('-c, --commandName [Command]', 'Use a custom startup commandName. Defaults to "node <script>"')
         .option('-d, --directory <Path>', 'Absolute path to Directory in which to run')
         .option('-l, --log <Path>', 'Specify where to save logs. Defaults to "/var/log"')
-        .option('-N, --noappend', 'Do not inject PID script to the app')
+        .option('-N, --noinject', 'Do not inject PID script to the app')
         .action(function(path, cmd){
             var db = program.getDB();
             //If any of these exist (through identity)
@@ -107,16 +108,16 @@ module.exports = function(program){
                     command: 'node'
                 });
 
-                var scriptFile = path.join(options.directory, options.script);
+                var scriptFile = _path.join(options.directory, options.script);
 
-                if(!cmd.noappend && fs.existsSync(scriptFile)){
+                if(!cmd.noinject && fs.existsSync(scriptFile)){
                     injector.injectPid(options.name, scriptFile).done(function(){
                         db.push('apps',options);
                         program.log.info('App successfully registered');
                     }).fail(function(err){
                         program.error(err.message);
                     });
-                } else if(cmd.noappend) {
+                } else if(cmd.noinject) {
                     db.push('apps',options);
                     program.log.info('App successfully registered');
                 } else {
