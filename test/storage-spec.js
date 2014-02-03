@@ -7,7 +7,13 @@ describe('Storage Module', function(){
 	var storage;
 	var dbPath = path.join(__dirname, '../test-db.json');
 
-	before(function(){
+    before(function(){
+        if(fs.existsSync(dbPath)){
+            fs.unlinkSync(dbPath);
+        }
+    });
+
+	after(function(){
 		if(fs.existsSync(dbPath)){
 			fs.unlinkSync(dbPath);
 		}

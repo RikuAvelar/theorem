@@ -19,10 +19,14 @@ module.exports = function(program) {
                 program.error('There is no app registered under the name "' + appName + '"');
             }
             injector.rejectPid(app).then(function(){
-                db.set('apps', apps);
+                program.log.debug('PID injected into ' + appName);
                 program.log.info(appName + ' has successfully been unregistered.');
             }).fail(function(err){
-                program.error(err.message);
+                program.log.debug(err.message);
+                program.log.error(appName + ' has been unregistered, however PID module couldn\'t be removed from its main script. Though it isn\'t necessary to remove it, the unregister process would normally do so for you.');
+            }).finally(function(){
+                program.log.debug(appName + ' added to the DB.');
+                db.set('apps', apps);
             });
 		});
 

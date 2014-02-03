@@ -53,34 +53,36 @@ function stepByStepPrompt(program){
 module.exports = function(program){
     program
         .command('register [FullPath]')
-        .description('Register a new Node.js app')
+        .description('Register a new Node.js app. Can be run without FullPath, which will enter a series of prompts.')
         .option('-n, --name [Name]', 'Application name')
         .option('-s, --script [script]', 'Script name. Defaults to "app.js"')
         .option('-c, --commandName [Command]', 'Use a custom startup commandName. Defaults to "node <script>"')
-        .option('-d, --directory <Path>', 'Absolute path to Directory in which to run')
+        .option('--directory <Path>', 'Absolute path to Directory in which to run')
         .option('-l, --log <Path>', 'Specify where to save logs. Defaults to "/var/log"')
         .option('-N, --noinject', 'Do not inject PID script to the app')
         .action(function(path, cmd){
             var db = program.getDB();
             //If any of these exist (through identity)
-            if(!_.any([path, cmd.path, cmd.script])) {
+            if(!_.any([path, cmd.directory, cmd.script])) {
                 stepByStepPrompt(program);
             } else {
                 var nopath = false;
                 if (!path) {
                     // First with an identity wins
-                    path = _.find([cmd.path, cmd.script]);
+                    path = _.find([cmd.directory, cmd.script]);
+                    cmd.directory = _path.dirname(path);
+                    cmd.script = _path.basename(path);
                     nopath = true;
                 }
                 //Compact to get rid of initial empty string and possible trailing slash
-                var pathSplit = _.compact(path.split('/'));
+                var pathSplit = _.compact(path.split(_path.sep));
                 //Case : No FullPath was provided, and not enough info could be gathere from
                 if (pathSplit.length === 1 && nopath) {
-                    if (cmd.path && !cmd.script) {
+                    if (cmd.directory && !cmd.script) {
                         program.error('Directory Path must be absolute (and non-root)');
                         return false;
                     } else if(cmd.script) {
-                        program.error('A valid path must be provided, either through the "-d" flag or directly');
+                        program.error('A valid path must be provided, either through the "--directory" flag or directly');
                         return false;
                     } else {
                         //Sanity check on cmd.script : Can it be interpreted as the script's script?
@@ -99,7 +101,7 @@ module.exports = function(program){
                     log: cmd.log,
                     command: cmd.commandName
                 }, {
-                    name: path.basename(pathSplit, '.js'),
+                    name: _path.basename(_path.dirname(path)),
                     script: _.last(pathSplit),
                     directory: '/' + _.initial(pathSplit).join('/'),
                     log: '/var/log',
@@ -109,11 +111,11 @@ module.exports = function(program){
                 var scriptFile = _path.join(options.directory, options.script);
 
                 if(!cmd.noinject && fs.existsSync(scriptFile)){
-                    injector.injectPid(options.name, scriptFile).done(function(){
+                    injector.injectPid(options.name, scriptFile).fail(function(err){
+                        program.error(err.message);
+                    }).done(function(){
                         db.push('apps',options);
                         program.log.info('App successfully registered');
-                    }).fail(function(err){
-                        program.error(err.message);
                     });
                 } else if(cmd.noinject) {
                     db.push('apps',options);

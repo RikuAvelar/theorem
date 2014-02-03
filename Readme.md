@@ -3,7 +3,7 @@ theorem
 
 # Description
 
-A tool for managing registered node apps through supervisor, monit and paypal
+A tool for managing registered apps in supervisor and monit. Designed primarily for node apps, it can also be used to register other applications with the right settings.
 
 # Usage
 

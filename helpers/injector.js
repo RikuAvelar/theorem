@@ -10,9 +10,9 @@ module.exports = {
             if(err){
                 return deferred.reject(err);
             }
-            var injectedPid = '/* Theorem PID injection - Do not remove this line */ require(\'' + path.join(__dirname, 'pid.js') + '\')(\'' + appName + '\')';
+            var injectedPid = '/* Theorem PID injection - Do not remove this line */ require(\'' + path.join(__dirname, 'pid.js') + '\')(\'' + appName + '\');';
             if(data.indexOf('/* Theorem PID injection - Do not remove this line */') === -1) {
-                fs.appendFile(scriptFile, '\n' + injectedPid, function(err){
+                fs.appendFile(scriptFile, '\n\n' + injectedPid, function(err){
                     if(err){
                         deferred.reject(err);
                     } else {
