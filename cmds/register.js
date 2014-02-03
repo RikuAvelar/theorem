@@ -43,7 +43,7 @@ function stepByStepPrompt(program){
             var db = program.getDB();
             // store.command = store.command + ' ' + store.script;
             db.push('apps', store);
-            deferred.resolve();
+            deferred.resolve(store);
         });
 
     return deferred.promise;
@@ -64,7 +64,23 @@ module.exports = function(program){
             var db = program.getDB();
             //If any of these exist (through identity)
             if(!_.any([path, cmd.directory, cmd.script])) {
-                stepByStepPrompt(program);
+                stepByStepPrompt(program).done(function(options){
+                    var scriptFile = _path.join(options.directory, options.script);
+
+                    if(!cmd.noinject && fs.existsSync(scriptFile)){
+                        injector.injectPid(options.name, scriptFile).fail(function(err){
+                            program.error(err.message);
+                        }).done(function(){
+                            db.push('apps',options);
+                            program.log.info('App successfully registered');
+                        });
+                    } else if(cmd.noinject) {
+                        db.push('apps',options);
+                        program.log.info('App successfully registered');
+                    } else {
+                        program.error('The script you attempted to register did not exist (' + scriptFile + ')');
+                    }
+                });
             } else {
                 var nopath = false;
                 if (!path) {
