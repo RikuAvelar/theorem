@@ -1,6 +1,6 @@
 {
   "name": "theorem",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A tool for managing registered node apps through supervisor, monit and paypal",
   "private": true,
   "bin": {
