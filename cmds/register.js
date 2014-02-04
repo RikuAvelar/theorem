@@ -38,6 +38,7 @@ function stepByStepPrompt(program){
         .then(prompt('directory', 'Script Directory: '))
         .then(prompt('script', 'Script Name [default=app.js]: ', 'app.js'))
         .then(prompt('command', 'Command [default=node]: ', 'node'))
+        .then(prompt('port', 'Used Port (Not required, but very helpful): '))
         .then(prompt('log', 'Log Path [default=/var/log]: ', '/var/log'))
         .done(function(){
             deferred.resolve(store);
@@ -53,6 +54,7 @@ module.exports = function(program){
         .description('Register a new Node.js app. Can be run without FullPath, which will enter a series of prompts.')
         .option('-n, --name [Name]', 'Application name')
         .option('-s, --script [script]', 'Script name. Defaults to "app.js"')
+        .option('-p, --port [port]', 'Port number. Not necessary, but very helpful')
         .option('-c, --commandName [Command]', 'Use a custom startup commandName. Defaults to "node <script>"')
         .option('--directory <Path>', 'Absolute path to Directory in which to run')
         .option('-l, --log <Path>', 'Specify where to save logs. Defaults to "/var/log"')
@@ -112,13 +114,15 @@ module.exports = function(program){
                     script: cmd.script,
                     directory: cmd.directory,
                     log: cmd.log,
-                    command: cmd.commandName
+                    command: cmd.commandName,
+                    port: cmd.port
                 }, {
                     name: _path.basename(_path.dirname(path)),
                     script: _.last(pathSplit),
                     directory: '/' + _.initial(pathSplit).join('/'),
                     log: '/var/log',
-                    command: 'node'
+                    command: 'node',
+                    port: '???'
                 });
 
                 var scriptFile = _path.join(options.directory, options.script);
