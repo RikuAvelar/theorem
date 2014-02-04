@@ -12,13 +12,13 @@ describe('theorem register', function(){
 
     before(function(){
         if(fs.existsSync(dbPath)){
-            fs.unlink(dbPath);
+            fs.unlinkSync(dbPath);
         }
     });
 
     afterEach(function(){
         if(fs.existsSync(dbPath)){
-            fs.unlink(dbPath);
+            fs.unlinkSync(dbPath);
         }
     });
 

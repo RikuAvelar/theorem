@@ -23,7 +23,7 @@ module.exports = function(program) {
                 program.log.info(appName + ' has successfully been unregistered.');
             }).fail(function(err){
                 program.log.debug(err.message);
-                program.log.error(appName + ' has been unregistered, however PID module couldn\'t be removed from its main script. Though it isn\'t necessary to remove it, the unregister process would normally do so for you.');
+                program.log.info(appName + ' has been unregistered, however PID module couldn\'t be removed from its main script. Though it isn\'t necessary to remove it, the unregister process would normally do so for you.');
             }).finally(function(){
                 program.log.debug(appName + ' added to the DB.');
                 db.set('apps', apps);

@@ -40,9 +40,6 @@ function stepByStepPrompt(program){
         .then(prompt('command', 'Command [default=node]: ', 'node'))
         .then(prompt('log', 'Log Path [default=/var/log]: ', '/var/log'))
         .done(function(){
-            var db = program.getDB();
-            // store.command = store.command + ' ' + store.script;
-            db.push('apps', store);
             deferred.resolve(store);
         });
 
