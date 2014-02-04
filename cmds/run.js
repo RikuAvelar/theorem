@@ -64,14 +64,14 @@ function injectIntoSupervisor(conf, apps, program){
     var generateSingleConf = function(app){
         return '; ' + app.name + ' Config' + ';\n' +
         '[program:' + app.name + ']\n' +
-        'command=' + app.command + ' ' + app.script + ';\n' +
-        'directory=' + app.directory + ';\n' +
-        'process_name=' + app.name + ';\n' +
-        'autorestart=true;\n' +
-        'startsecs=1;\n' +
-        'stopwaitsecs=10;\n' +
-        'stdout_logfile=' + path.join(app.log, app.name) + '.log;\n' +
-        'stderr_logfile=' + path.join(app.log, app.name) + '.err.log;\n\n';
+        'command=' + app.command + ' ' + app.script + ' ;\n' +
+        'directory=' + app.directory + ' ;\n' +
+        'process_name=' + app.name + ' ;\n' +
+        'autorestart=true ;\n' +
+        'startsecs=1 ;\n' +
+        'stopwaitsecs=10 ;\n' +
+        'stdout_logfile=' + path.join(app.log, app.name) + '.log ;\n' +
+        'stderr_logfile=' + path.join(app.log, app.name) + '.err.log ;\n\n';
     };
 
     fs.readFile(conf, function(err, data){
