@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var exec = require('child_process').exec;
 var path = require('path');
 var fs = require('fs');
-var suppose = require('suppose');
+// var suppose = require('suppose');
 
 describe('theorem unregister', function(){
     var dbPath = path.join(__dirname, '../test-db.json');
@@ -12,7 +12,7 @@ describe('theorem unregister', function(){
 
     beforeEach(function(){
         fs.writeFileSync(dbPath, JSON.stringify({
-            apps: [{'name':'Theorem','directory':'/home/dev','script':'app.js','command':'node app.js','log':'/var/log'},{'name':'AppName','directory':'/dev','script':'app.js','command':'node','log':'/var/log'}]
+            apps: [{'name':'Theorem','directory':'/home/dev','script':'app.js','command':'node','log':'/var/log'},{'name':'AppName','directory':__dirname,'script':'testMainScript.js','command':'node','log':'/var/log'}]
         }));
     });
 
@@ -42,39 +42,37 @@ describe('theorem unregister', function(){
     });
 
     describe('Reverse Injection', function(){
-        // var scriptFile = path.join(__dirname, 'testMainScript.js');
-        // var cmd = [path.join(__dirname, '../bin/theorem'), '--dbpath', dbPath, 'register'];
+        var scriptFile = path.join(__dirname, 'testMainScript.js');
+        var cmd = ['node', path.join(__dirname, '../bin/theorem'), '--dbpath', dbPath, 'unregister'];
 
-        // beforeEach(function(){
-        //     fs.writeFileSync(scriptFile, '// Beginning of File');
-        // });
+        beforeEach(function(){
+            fs.writeFileSync(scriptFile, '// Beginning of File\n\n/* Theorem PID injection - Do not remove this line */ require(\'' + path.normalize(path.join(__dirname, '../helpers/pid.js')) + '\')(\'AppName\');');
+        });
 
-        // afterEach(function(){
-        //     fs.unlinkSync(scriptFile);
-        // });
+        afterEach(function(){
+            fs.unlinkSync(scriptFile);
+        });
 
 
-        // it('should inject the PID module into the registered script', function(done){
-        //     this.timeout(5000);
+        it('should remove the PID module into the registered script', function(done){
+            this.timeout(5000);
 
-        //     suppose('node', cmd.concat(['-n','AppName','-l','/var/log/theorem', '--directory', path.join(__dirname, 'testMainScript.js')]))
-        //         .error(function(err){
-        //             done(err);
-        //         })
-        //         .end(function(code){
-        //             fs.readFile(scriptFile, 'utf-8', function(err, data){
-        //                 if(err){
-        //                     console.log(err.message);
-        //                     done(err);
-        //                 } else {
-        //                     var scriptString = data;
-        //                     expect(scriptString).to.have.string('// Beginning of File\n\n');
-        //                     expect(scriptString).to.have.string('/* Theorem PID injection - Do not remove this line */ require(\'' + path.normalize(path.join(__dirname, '../helpers/pid.js')) + '\')(\'AppName\');');
-        //                     done();
-        //                 }
-        //             });
-        //         });
-        // });
+            exec(cmd.concat('AppName').join(' '), function (error, stdout, stderr) {
+                expect(error).to.not.exist;
+                expect(stdout).to.have.string('AppName has successfully been unregistered.');
+                fs.readFile(scriptFile, 'utf-8', function(err, data){
+                    if(err){
+                        console.log(err.message);
+                        done(err);
+                    } else {
+                        var scriptString = data;
+                        expect(scriptString).to.have.string('// Beginning of File\n\n');
+                        expect(scriptString).to.not.have.string('/* Theorem PID injection - Do not remove this line */ require(\'' + path.normalize(path.join(__dirname, '../helpers/pid.js')) + '\')(\'AppName\');');
+                        done();
+                    }
+                });
+            });
+        });
     });
 
 
