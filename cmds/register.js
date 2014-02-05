@@ -63,6 +63,7 @@ module.exports = function(program){
             var db = program.getDB();
             //If any of these exist (through identity)
             if(!_.any([path, cmd.directory, cmd.script])) {
+                program.log.debug('Entering Prompt mode...');
                 stepByStepPrompt(program).done(function(options){
                     var scriptFile = _path.join(options.directory, options.script);
 
@@ -82,6 +83,7 @@ module.exports = function(program){
                 });
             } else {
                 var nopath = false;
+                program.log.debug('Entering logic mode...');
                 if (!path) {
                     // First with an identity wins
                     path = _.find([cmd.directory, cmd.script]);
@@ -109,6 +111,7 @@ module.exports = function(program){
                         }
                     }
                 }
+                program.log.debug('Path info ready, setting up options.');
                 var options = _.defaults({
                     name: cmd.name,
                     script: cmd.script,
@@ -128,6 +131,7 @@ module.exports = function(program){
                 var scriptFile = _path.join(options.directory, options.script);
 
                 if(!cmd.noinject && fs.existsSync(scriptFile)){
+                    program.log.debug('Injecting PID in script');
                     injector.injectPid(options.name, scriptFile).fail(function(err){
                         program.error(err.message);
                     }).done(function(){

@@ -167,6 +167,30 @@ describe('theorem register', function(){
                     });
                 });
         });
+
+        it('should ignore scripts that already have the PID', function(done){
+            this.timeout(5000);
+
+            fs.writeFileSync(scriptFile, '// Beginning of File\n/* Theorem PID injection - Do not remove this line */ require(\'TestScript\');');
+
+            suppose('node', cmd.concat(['-n','AppName','-l','/var/log/theorem', '--directory', path.join(__dirname, 'testMainScript.js')]))
+                .error(function(err){
+                    done(err);
+                })
+                .end(function(code){
+                    fs.readFile(scriptFile, 'utf-8', function(err, data){
+                        if(err){
+                            console.log(err.message);
+                            done(err);
+                        } else {
+                            var scriptString = data;
+                            expect(scriptString).to.have.string('// Beginning of File\n\n');
+                            expect(scriptString).to.have.string('/* Theorem PID injection - Do not remove this line */ require(\'' + path.normalize(path.join(__dirname, '../helpers/pid.js')) + '\')(\'AppName\');');
+                            done();
+                        }
+                    });
+                });
+        });
     });
 
 
